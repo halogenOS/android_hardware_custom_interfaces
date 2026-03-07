@@ -1,0 +1,4 @@
+service custom.media.codec.features-default /vendor/bin/hw/custom.media.codec.features-service.default
+    class hal
+    user system
+    group system

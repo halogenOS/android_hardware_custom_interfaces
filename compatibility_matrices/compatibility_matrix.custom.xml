@@ -21,4 +21,13 @@
             <instance>default</instance>
         </interface>
     </hal>
+    <!-- Codec features -->
+    <hal format="aidl" optional="true">
+        <name>custom.media.codec</name>
+        <version>1</version>
+        <interface>
+            <name>ICodecFeatures</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
 </compatibility-matrix>
