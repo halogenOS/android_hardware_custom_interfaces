@@ -1,0 +1,15 @@
+<!--
+     SPDX-FileCopyrightText: 2026 The halogenOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<compatibility-matrix version="2.0" type="framework">
+    <!-- Codec features -->
+    <hal format="aidl" optional="true">
+        <name>custom.media.codec</name>
+        <version>1</version>
+        <interface>
+            <name>ICodecFeatures</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+</compatibility-matrix>

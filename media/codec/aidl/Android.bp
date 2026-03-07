@@ -1,0 +1,33 @@
+//
+// SPDX-FileCopyrightText: 2026 The halogenOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+aidl_interface {
+    name: "custom.media.codec",
+    srcs: ["custom/media/codec/*.aidl"],
+    stability: "vintf",
+    vendor_available: true,
+    double_loadable: true,
+
+    backend: {
+        java: {
+            enabled: true,
+            sdk_version: "module_current",
+        },
+        ndk: {
+            enabled: true,
+        },
+        cpp: {
+            enabled: false,
+        },
+    },
+    frozen: true,
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+
+}
