@@ -1,0 +1,33 @@
+aidl_interface {
+    name: "custom.hardware.display.ltpo",
+    vendor_available: true,
+    stability: "vintf",
+    srcs: [
+        "custom/hardware/display/ltpo/ILtpoControl.aidl",
+    ],
+    owner: "custom",
+    backend: {
+        java: {
+            enabled: false,
+        },
+        ndk: {
+            enabled: true,
+        },
+        cpp: {
+            enabled: false,
+        },
+    },
+    frozen: true,
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+        {
+            version: "2",
+            imports: [],
+        },
+
+    ],
+
+}

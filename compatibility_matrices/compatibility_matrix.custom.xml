@@ -12,4 +12,13 @@
             <instance>default</instance>
         </interface>
     </hal>
+    <!-- LTPO idle control -->
+    <hal format="aidl" optional="true">
+        <name>custom.hardware.display.ltpo</name>
+        <version>1-2</version>
+        <interface>
+            <name>ILtpoControl</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
 </compatibility-matrix>
