@@ -1,0 +1,4 @@
+service custom.hardware.biometrics.fingerprint.udfps-default /vendor/bin/hw/custom.hardware.biometrics.fingerprint.udfps-service.default
+    class hal
+    user system
+    group system

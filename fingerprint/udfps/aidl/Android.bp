@@ -1,0 +1,31 @@
+//
+// SPDX-FileCopyrightText: 2026 The halogenOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+aidl_interface {
+    name: "custom.hardware.biometrics.fingerprint.udfps",
+    srcs: ["custom/hardware/biometrics/fingerprint/udfps/*.aidl"],
+    stability: "vintf",
+    vendor_available: true,
+
+    backend: {
+        java: {
+            enabled: false,
+        },
+        ndk: {
+            enabled: true,
+        },
+        cpp: {
+            enabled: false,
+        },
+    },
+    frozen: true,
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+
+}

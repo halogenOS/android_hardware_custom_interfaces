@@ -3,6 +3,15 @@
      SPDX-License-Identifier: Apache-2.0
 -->
 <compatibility-matrix version="2.0" type="framework">
+    <!-- UDFPS z-order control -->
+    <hal format="aidl" optional="true">
+        <name>custom.hardware.biometrics.fingerprint.udfps</name>
+        <version>1</version>
+        <interface>
+            <name>IUdfpsExtension</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
     <!-- LTPO idle control -->
     <hal format="aidl" optional="true">
         <name>custom.hardware.display.ltpo</name>
