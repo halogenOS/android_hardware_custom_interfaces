@@ -1,0 +1,7 @@
+java_library {
+    name: "custom.system.service.charging",
+    srcs: [
+        "custom/system/service/charging/IChargingControlManager.aidl",
+    ],
+    sdk_version: "system_current",
+}
