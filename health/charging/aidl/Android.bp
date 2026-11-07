@@ -1,0 +1,34 @@
+//
+// SPDX-FileCopyrightText: The halogenOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+aidl_interface {
+    name: "custom.hardware.health.charging",
+    srcs: ["custom/hardware/health/charging/*.aidl"],
+    stability: "vintf",
+    vendor_available: true,
+
+    backend: {
+        java: {
+            enabled: true,
+        },
+        rust: {
+            enabled: true,
+        },
+        ndk: {
+            enabled: false,
+        },
+        cpp: {
+            enabled: false,
+        },
+    },
+    frozen: true,
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+
+}

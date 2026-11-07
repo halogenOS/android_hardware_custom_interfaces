@@ -30,4 +30,13 @@
             <instance>default</instance>
         </interface>
     </hal>
+    <!-- Charge limit -->
+    <hal format="aidl" optional="true">
+        <name>custom.hardware.health.charging</name>
+        <version>1</version>
+        <interface>
+            <name>IChargeLimit</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
 </compatibility-matrix>
