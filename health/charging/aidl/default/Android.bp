@@ -1,0 +1,27 @@
+//
+// SPDX-FileCopyrightText: The halogenOS Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+rust_library {
+    name: "libcharge_limit_hal",
+    crate_name: "charge_limit_hal",
+    vendor: true,
+    crate_root: "src/lib.rs",
+    srcs: ["src/*.rs"],
+    // Platform lints, with clippy, instead of the vendor lints used for code under hardware/.
+    lints: "android",
+    clippy_lints: "android",
+    rustlibs: [
+        "custom.hardware.health.charging-V1-rust",
+        "libandroid_logger",
+        "libbinder_rs",
+        "libkobject_uevent",
+        "liblibc",
+        "liblog_rust",
+        "libnetlink_sys",
+        "libsignal_hook",
+        "libthiserror",
+        "libtokio",
+    ],
+}
