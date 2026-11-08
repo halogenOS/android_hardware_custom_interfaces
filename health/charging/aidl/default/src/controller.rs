@@ -3,12 +3,13 @@
 
 //! Applies the latest target to the battery each time the target or a power supply changes.
 
-use std::{cmp::Ordering, convert::Infallible};
+use std::convert::Infallible;
 
 use log::error;
 use tokio::sync::watch;
 
 use crate::{
+    band::Band,
     battery::BatteryLevel,
     charger::{ChargeMode, Charger},
     error::{describe, ServiceError},
@@ -19,12 +20,14 @@ use crate::{
 pub(crate) struct Controller<C> {
     charger: C,
     /// The latest target. `None` means normal charging.
-    targets: watch::Receiver<Option<BatteryLevel>>,
+    targets: watch::Receiver<Option<Band>>,
+    /// The mode set last affects whether a battery inside the band charges or rests.
+    mode: ChargeMode,
 }
 
 impl<C: Charger> Controller<C> {
-    pub(crate) fn new(charger: C, targets: watch::Receiver<Option<BatteryLevel>>) -> Self {
-        Self { charger, targets }
+    pub(crate) fn new(charger: C, targets: watch::Receiver<Option<Band>>) -> Self {
+        Self { charger, targets, mode: ChargeMode::NORMAL }
     }
 
     /// Runs until the uevents stop.
@@ -43,28 +46,20 @@ impl<C: Charger> Controller<C> {
 
     fn apply(&mut self) {
         let target = *self.targets.borrow_and_update();
-        let mode = target.map_or(ChargeMode::Charge, |target| {
+        let mode = target.map_or(ChargeMode::NORMAL, |target| {
             BatteryLevel::read().map_or_else(
                 |error| {
                     // Hold neither drains the battery nor charges it past the target.
                     error!("Cannot read the battery level, using Hold: {}", describe(&error));
                     ChargeMode::Hold
                 },
-                |level| mode_toward(target, level),
+                |level| target.mode_at(level, self.mode),
             )
         });
+        self.mode = mode;
         if let Err(error) = self.charger.set(mode) {
             // The next power supply uevent calls `apply` again.
             error!("Cannot set the charger to {mode:?}: {}", describe(&error));
         }
-    }
-}
-
-/// The mode that moves the battery from `level` to `target`.
-fn mode_toward(target: BatteryLevel, level: BatteryLevel) -> ChargeMode {
-    match level.cmp(&target) {
-        Ordering::Less => ChargeMode::Charge,
-        Ordering::Equal => ChargeMode::Hold,
-        Ordering::Greater => ChargeMode::Drain,
     }
 }

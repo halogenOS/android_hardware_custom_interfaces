@@ -14,6 +14,7 @@ use log::{error, info, warn};
 use tokio::sync::{mpsc, watch};
 
 use crate::{
+    band::Band,
     battery::BatteryLevel,
     error::{describe, ServiceError},
 };
@@ -23,7 +24,7 @@ enum Event {
     /// The system attached a flow that emits targets.
     Attached(Strong<dyn IChargeLimitFlow>),
     /// A flow emitted a target. `None` means normal charging.
-    Emitted { flow: Strong<dyn IChargeLimitFlow>, target: Option<BatteryLevel> },
+    Emitted { flow: Strong<dyn IChargeLimitFlow>, target: Option<Band> },
     /// A flow died with the process that published it.
     FlowDied(Strong<dyn IChargeLimitFlow>),
 }
@@ -43,12 +44,12 @@ pub(crate) struct Flows {
     events: mpsc::Sender<Event>,
     inbox: mpsc::Receiver<Event>,
     subscription: Option<Subscription>,
-    targets: watch::Sender<Option<BatteryLevel>>,
+    targets: watch::Sender<Option<Band>>,
 }
 
 impl Flows {
     /// Returns the flows, the sender for attached flows, and the receiver for targets.
-    pub(crate) fn new() -> (Self, Attachments, watch::Receiver<Option<BatteryLevel>>) {
+    pub(crate) fn new() -> (Self, Attachments, watch::Receiver<Option<Band>>) {
         let (events, inbox) = mpsc::channel(1);
         let (targets, receiver) = watch::channel(None);
         let flows = Self { events: events.clone(), inbox, subscription: None, targets };
@@ -85,7 +86,7 @@ impl Flows {
         }
     }
 
-    fn publish(&self, target: Option<BatteryLevel>) {
+    fn publish(&self, target: Option<Band>) {
         self.targets.send_modify(|latest| *latest = target);
     }
 }
@@ -135,7 +136,7 @@ impl Interface for Collector {}
 
 impl IChargeLimitCollector for Collector {
     fn emit(&self, target: Option<&ChargeLimitTarget>) -> binder::Result<()> {
-        let target = target.map(BatteryLevel::try_from).transpose().unwrap_or_else(|error| {
+        let target = target.map(Band::try_from).transpose().unwrap_or_else(|error| {
             error!("{}, charging normally", describe(&error));
             None
         });
@@ -143,12 +144,18 @@ impl IChargeLimitCollector for Collector {
     }
 }
 
-impl TryFrom<&ChargeLimitTarget> for BatteryLevel {
+impl TryFrom<&ChargeLimitTarget> for Band {
     type Error = ServiceError;
 
     fn try_from(target: &ChargeLimitTarget) -> Result<Self, ServiceError> {
-        Self::within(MIN_LEVEL_PERCENT..=MAX_LEVEL_PERCENT, target.levelPercent)
-            .ok_or(ServiceError::TargetOutOfRange(target.levelPercent))
+        let ChargeLimitTarget { levelPercent: limit, variationPercent: variation } = *target;
+        let bottom = BatteryLevel::within(MIN_LEVEL_PERCENT..=MAX_LEVEL_PERCENT, limit)
+            .ok_or(ServiceError::TargetOutOfRange(limit))?;
+        Ok(Self::above(bottom, variation).unwrap_or_else(|| {
+            // The interface reads a variation outside the allowed range as 0.
+            warn!("The variation of {variation}% does not fit above {limit}%, using 0");
+            Self::at(bottom)
+        }))
     }
 }
 

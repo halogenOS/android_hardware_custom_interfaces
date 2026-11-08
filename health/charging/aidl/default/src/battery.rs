@@ -28,4 +28,11 @@ impl BatteryLevel {
     pub(crate) fn within(levels: RangeInclusive<i32>, percent: i32) -> Option<Self> {
         u8::try_from(percent).ok().filter(|_| levels.contains(&percent)).map(Self)
     }
+
+    /// The level `percent` above this one, if `percent` is not negative and a battery can have the
+    /// raised level.
+    pub(crate) fn raised_by(self, percent: i32) -> Option<Self> {
+        let level = i32::from(self.0);
+        level.checked_add(percent).and_then(|raised| Self::within(level..=*PERCENT.end(), raised))
+    }
 }

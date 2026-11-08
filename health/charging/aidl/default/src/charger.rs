@@ -18,6 +18,11 @@ pub enum ChargeMode {
     Drain,
 }
 
+impl ChargeMode {
+    /// Normal charging: the mode without a target and after the HAL stops.
+    pub(crate) const NORMAL: Self = Self::Charge;
+}
+
 /// The charger of one device. The library calls `set` on each new target and each power supply
 /// uevent, and with [`ChargeMode::Charge`] when the HAL stops.
 pub trait Charger {
@@ -47,7 +52,7 @@ impl<C: Charger> Charger for RestoringCharger<C> {
 
 impl<C: Charger> Drop for RestoringCharger<C> {
     fn drop(&mut self) {
-        if let Err(error) = self.set(ChargeMode::Charge) {
+        if let Err(error) = self.set(ChargeMode::NORMAL) {
             error!("Cannot return to normal charging: {}", describe(&error));
         }
     }

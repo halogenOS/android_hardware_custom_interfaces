@@ -13,6 +13,7 @@
     clippy::let_underscore_must_use
 )]
 
+mod band;
 mod battery;
 mod charger;
 mod controller;

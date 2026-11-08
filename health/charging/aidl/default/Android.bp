@@ -13,7 +13,7 @@ rust_library {
     lints: "android",
     clippy_lints: "android",
     rustlibs: [
-        "custom.hardware.health.charging-V1-rust",
+        "custom.hardware.health.charging-V2-rust",
         "libandroid_logger",
         "libbinder_rs",
         "libkobject_uevent",
@@ -24,4 +24,12 @@ rust_library {
         "libthiserror",
         "libtokio",
     ],
+}
+
+// The service run by the library, declared at the AIDL version linked above. Each device binary
+// lists it in vintf_fragment_modules.
+vintf_fragment {
+    name: "custom.hardware.health.charging-service.xml",
+    src: "custom.hardware.health.charging-service.xml",
+    vendor: true,
 }
