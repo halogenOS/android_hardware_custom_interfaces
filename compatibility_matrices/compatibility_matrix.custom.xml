@@ -33,7 +33,7 @@
     <!-- Charge limit -->
     <hal format="aidl" optional="true">
         <name>custom.hardware.health.charging</name>
-        <version>1</version>
+        <version>1-2</version>
         <interface>
             <name>IChargeLimit</name>
             <instance>default</instance>

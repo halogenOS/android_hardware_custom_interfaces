@@ -24,6 +24,7 @@ package custom.hardware.health.charging;
 @VintfStability
 parcelable ChargeLimitTarget {
   int levelPercent;
+  int variationPercent = 0;
   const int MIN_LEVEL_PERCENT = 1;
   const int MAX_LEVEL_PERCENT = 99;
 }
