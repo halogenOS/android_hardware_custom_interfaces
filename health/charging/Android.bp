@@ -1,7 +1,7 @@
 java_library {
     name: "custom.health.charging",
     srcs: [
-        "custom/health/charging/IChargingControlManager.aidl",
+        "custom/health/charging/*.aidl",
     ],
     sdk_version: "system_current",
 }
