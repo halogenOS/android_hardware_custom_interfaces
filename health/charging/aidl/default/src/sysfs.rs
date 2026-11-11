@@ -101,3 +101,33 @@ impl Switch {
         }
     }
 }
+
+/// A switch of a charger driver that is written with 1 for on and 0 for off, but shows something
+/// else when read, such as a register. Its state is the value last written to it.
+pub struct WriteOnlySwitch {
+    switch: Switch,
+    /// `None` before the first write and after a failed write, when the state is unknown.
+    written: Option<bool>,
+}
+
+impl WriteOnlySwitch {
+    /// The switch at `path`. The first [`WriteOnlySwitch::set`] writes to it.
+    #[must_use]
+    pub const fn new(path: &'static str) -> Self {
+        Self { switch: Switch::new(path), written: None }
+    }
+
+    /// Writes `on` unless the last write already set it.
+    ///
+    /// # Errors
+    ///
+    /// [`Error::WriteAttribute`]. The state is then unknown, so the next call writes again.
+    pub fn set(&mut self, on: bool) -> Result<(), Error> {
+        if self.written == Some(on) {
+            return Ok(());
+        }
+        let written = self.switch.write(on);
+        self.written = written.is_ok().then_some(on);
+        written
+    }
+}
