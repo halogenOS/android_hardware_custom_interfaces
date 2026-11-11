@@ -32,16 +32,12 @@ use log::{error, info, LevelFilter};
 use tokio::runtime;
 
 use crate::{
-    charger::RestoringCharger,
-    controller::Controller,
-    error::{describe, ServiceError},
-    flow::Flows,
-    power_supply::PowerSupplyEvents,
-    termination::Termination,
+    charger::RestoringCharger, controller::Controller, error::ServiceError, flow::Flows,
+    power_supply::PowerSupplyEvents, termination::Termination,
 };
 pub use crate::{
     charger::{ChargeMode, Charger},
-    error::Error,
+    error::{describe, Error},
 };
 
 const LOG_TAG: &str = "charge_limit";

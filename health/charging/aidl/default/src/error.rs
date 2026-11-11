@@ -54,7 +54,8 @@ pub(crate) enum ServiceError {
 }
 
 /// The error followed by every error that caused it, for the log.
-pub(crate) fn describe(error: &dyn std::error::Error) -> String {
+#[must_use]
+pub fn describe(error: &dyn std::error::Error) -> String {
     iter::successors(Some(error), |error| error.source())
         .map(ToString::to_string)
         .collect::<Vec<_>>()
