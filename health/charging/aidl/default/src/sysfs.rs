@@ -3,13 +3,14 @@
 
 //! Number attributes and switches exposed in sysfs by kernel drivers.
 
-use std::fs;
+use std::{fs, num::ParseIntError};
 
 use log::info;
 
 use crate::error::Error;
 
-/// A sysfs attribute that contains a decimal number.
+/// A sysfs attribute that contains a number in decimal, or in hexadecimal after `0x`. Kernel
+/// drivers print both forms.
 pub struct Attribute {
     path: &'static str,
 }
@@ -32,11 +33,9 @@ impl Attribute {
     ///
     /// [`Error::ReadAttribute`] or [`Error::ParseAttribute`].
     pub fn read(&self) -> Result<i32, Error> {
-        fs::read_to_string(self.path)
-            .map_err(|error| Error::ReadAttribute(self.path, error))?
-            .trim()
-            .parse()
-            .map_err(|error| Error::ParseAttribute(self.path, error))
+        let text = fs::read_to_string(self.path)
+            .map_err(|error| Error::ReadAttribute(self.path, error))?;
+        parse_number(text.trim()).map_err(|error| Error::ParseAttribute(self.path, error))
     }
 
     /// Writes `value` to the attribute.
@@ -44,6 +43,15 @@ impl Attribute {
         fs::write(self.path, value.to_string())
             .map_err(|error| Error::WriteAttribute(self.path, error))
     }
+}
+
+/// Reads `text` as hexadecimal after `0x`, and as decimal otherwise.
+fn parse_number(text: &str) -> Result<i32, ParseIntError> {
+    text.strip_prefix("0x")
+        // `from_str_radix` accepts a sign, which kernel drivers never print after `0x`. Text with a
+        // sign there fails as decimal.
+        .filter(|digits| digits.starts_with(|digit: char| digit.is_ascii_hexdigit()))
+        .map_or_else(|| text.parse(), |digits| i32::from_str_radix(digits, 16))
 }
 
 /// A switch of a charger driver in sysfs: 1 is on, 0 is off.
