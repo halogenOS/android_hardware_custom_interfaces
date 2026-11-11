@@ -11,7 +11,7 @@ use tokio::sync::watch;
 use crate::{
     band::Band,
     battery::BatteryLevel,
-    charger::{ChargeMode, Charger},
+    charger::{ChargeMode, Charger, SetReason},
     error::{describe, ServiceError},
     power_supply::PowerSupplyEvents,
 };
@@ -35,16 +35,17 @@ impl<C: Charger> Controller<C> {
         mut self,
         power_supply: PowerSupplyEvents,
     ) -> Result<Infallible, ServiceError> {
+        let mut reason = SetReason::Target;
         loop {
-            self.apply();
-            tokio::select! {
-                Ok(()) = self.targets.changed() => {}
+            self.apply(&reason);
+            reason = tokio::select! {
+                Ok(()) = self.targets.changed() => SetReason::Target,
                 changed = power_supply.changed() => changed?,
-            }
+            };
         }
     }
 
-    fn apply(&mut self) {
+    fn apply(&mut self, reason: &SetReason) {
         let target = *self.targets.borrow_and_update();
         let mode = target.map_or(ChargeMode::NORMAL, |target| {
             BatteryLevel::read().map_or_else(
@@ -57,7 +58,7 @@ impl<C: Charger> Controller<C> {
             )
         });
         self.mode = mode;
-        if let Err(error) = self.charger.set(mode) {
+        if let Err(error) = self.charger.set(mode, reason) {
             // The next power supply uevent calls `apply` again.
             error!("Cannot set the charger to {mode:?}: {}", describe(&error));
         }

@@ -36,7 +36,7 @@ use crate::{
     power_supply::PowerSupplyEvents, termination::Termination,
 };
 pub use crate::{
-    charger::{ChargeMode, Charger},
+    charger::{ChargeMode, Charger, SetReason},
     error::{describe, Error},
 };
 
